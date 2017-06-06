@@ -87,6 +87,6 @@ function findMatches(regexp, text) {
   while ((match = regexp.exec(text)) !== null) {
     matches.push(match)
   }
-  return matches
+  return matches.reverse()
 }
 

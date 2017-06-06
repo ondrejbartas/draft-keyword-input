@@ -22,3 +22,6 @@ storiesOf('KeywordInput', module)
   .add('keyword with parametrized modifier', () => (
     <KeywordInput value="There is keyword {{keyword:modifier(5)}} here" keywordMap={{ keyword: 'with parametrized modifier' }} />
   ))
+  .add('long text with multiple variables', () => (
+    <KeywordInput value="nejaky super text s {{price:round()}} kc od vyrobce {{brand:shorten(3):capitalize()}}. S nejakou {{color}} barvou" keywordMap={{ price: 'Cena v Kč', brand: 'VÝROBCE', color: 'Barva' }} />
+  ))

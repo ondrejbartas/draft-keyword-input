@@ -2,7 +2,7 @@
 import React, { Component } from 'react'
 import { EditorState, ContentState, SelectionState, CompositeDecorator, Modifier, convertToRaw } from 'draft-js'
 import { compose, pure, withState, withHandlers } from 'recompose'
-import { TypeaheadEditor } from 'draft-js-typeahead'
+import { Editor as TypeaheadEditor } from 'draft-js'
 
 import { createKeywordEntity, expandKeywordEntities } from './keywordEntity'
 import Keywords from './Keywords'
@@ -87,9 +87,25 @@ class KeywordInput extends Component {
         onChange={onEditorChange}
         onTypeaheadChange={onTypeaheadChange}
       />
-      <pre>{JSON.stringify(convertToRaw(editorState.getCurrentContent()), null, 2)}</pre>
+      Serialized: <pre>{serializeToString(convertToRaw(editorState.getCurrentContent()), null, 2)}</pre>
+      Whole state: <pre>{JSON.stringify(convertToRaw(editorState.getCurrentContent()), null, 2)}</pre>
     </div>)
   }
+}
+
+function serializeToString(state) {
+  return state.blocks.map(block => serializeBlock(state, block)).join(' ')
+}
+
+function serializeBlock(state, block) {
+  return block.entityRanges.reverse().reduce((text, entityRange) => {
+    const entity = state.entityMap[entityRange.key.toString()].data
+    const modifiers = (entity.modifiers || []).map(mod => `${mod.type}(${mod.args.join(',')})`)
+    const entityText = [entity.keyword].concat(modifiers).join(':');
+    const firstPart = text.split('').splice(0, entityRange.offset).join('');
+    const lastPart = text.split('').splice(entityRange.offset + entityRange.length, text.length).join('');
+    return `${firstPart}{{${entityText}}}${lastPart}`;
+  }, block.text)
 }
 
 function addKeywordEntity(editorState, keyword) {
